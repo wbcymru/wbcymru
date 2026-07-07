@@ -4,7 +4,15 @@ This describes what actually exists in this repository today, not aspirational i
 
 ## What this project currently is
 
-A set of JSON Schema (draft 2020-12) data contracts plus a small library of Python scoring/decoding modules. There is no deployed service, no database, no crawler, and no live data source. Everything here is either (a) a validated schema a future ingestion/storage layer would conform to, or (b) a runnable, self-tested Python module implementing one deterministic calculation.
+A set of JSON Schema (draft 2020-12) data contracts, a small library of Python scoring/decoding modules, and Phase 0 operational tooling (data entry, calibration, report generation). There is no deployed service, no real database, no crawler, and no live data source. Everything here is either (a) a validated schema the data layer conforms to, (b) a runnable, self-tested Python module implementing one deterministic calculation, or (c) a CLI tool for getting real records into the flat-file store and reports out of it.
+
+## Phase 0 operational layer (`tools/`, `data/`, `reports/`)
+
+- `tools/atlas_data.py` — record entry: emits pre-filled templates for `listing`/`sold_transaction` records, validates edited templates against the schemas (rejecting leftover placeholders, schema violations, and duplicate IDs), and appends accepted records to the NDJSON store under `data/`. See `data/README.md` for the workflow and rules.
+- `tools/calibrate_residual_curve.py` — fits the per-category depreciation-curve constants against real sold comps by pure-stdlib grid search; refuses to fit a category with fewer than 20 usable comps (a fit to less data would *look* calibrated without being trustworthy). Self-test recovers a known synthetic curve to <1% error. Buy Score constants are explicitly out of its scope — those need realized-flip ground truth that doesn't exist yet.
+- `tools/daily_report.py` — renders the "Top Buys" report as a self-contained HTML file, from real store data (with every defaulted/uncalibrated input surfaced in a visible Assumptions section and an UNCALIBRATED banner until calibration exists) or from placeholder demo data behind an unmissable DEMO banner.
+- `data/` — the flat-file store itself: at hand-entry volumes, schema-validated NDJSON in a private git repo is the database. A real database earns its place when ingestion is automated, not before.
+- `reports/` — generated report HTML.
 
 ## Schema layer (`schemas/`)
 
@@ -57,8 +65,8 @@ Per an explicit strategy decision to narrow scope before broadening it, `schemas
 
 ## Not yet built
 
-- **Ingestion**: no crawlers, no scraper infrastructure, no OEM telematics OAuth clients, no third-party API integrations (EquipmentWatch, Sandhills, Rouse, DAT). No credentials or access exist in this environment; building client code against them now would be non-functional stubs.
-- **Storage**: no database. The schemas describe what a Postgres/ClickHouse/object-store layer would eventually validate against.
+- **Ingestion**: no crawlers, no scraper infrastructure, no OEM telematics OAuth clients, no third-party API integrations (EquipmentWatch, Sandhills, Rouse, DAT). No credentials or access exist in this environment; building client code against them now would be non-functional stubs. Phase 0 data entry is manual via `tools/atlas_data.py`.
+- **Storage**: no real database — only the Phase 0 flat-file NDJSON store under `data/` (see above), which is empty until real records are logged. The schemas describe what a Postgres/ClickHouse/object-store layer would eventually validate against.
 - **Feature store**: `point_in_time.py` is the join *algorithm*; there's no actual feature store service, no scheduled backfill jobs, no materialized training tables.
 - **Model training**: no models have been trained. The XGBoost/RSF/ResNet specs are architecture decisions, not fitted models.
 - **Telematics history**: `listing.asset.telematics` is a point-in-time snapshot; a proper time-series telematics table (needed for real trend features, not just latest-known-value) doesn't exist.

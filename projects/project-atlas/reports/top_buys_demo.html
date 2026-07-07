@@ -1,0 +1,176 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Top Buys — DEMO (placeholder data)</title>
+<style>
+  body { font: 15px/1.5 -apple-system, "Segoe UI", Roboto, sans-serif; color: #1a1a1a; background: #fafafa; margin: 0; padding: 2rem 1rem; }
+  main { max-width: 68rem; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .sub { color: #666; margin: 0 0 1.25rem; }
+  .banner { background: #fff3cd; border: 1px solid #e0c96a; border-radius: 6px; padding: .75rem 1rem; margin-bottom: 1.25rem; font-weight: 600; }
+  .table-wrap { overflow-x: auto; background: #fff; border: 1px solid #e2e2e2; border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; min-width: 56rem; }
+  th, td { padding: .55rem .7rem; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #555; background: #f4f4f4; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.score { font-weight: 700; }
+  tr.rec-buy_now td.rec { color: #106b21; font-weight: 700; }
+  tr.rec-watch td.rec { color: #8a6d00; font-weight: 600; }
+  tr.rec-pass td.rec { color: #999; }
+  .why { color: #777; font-size: .82rem; }
+  section.assumptions { margin-top: 1.5rem; background: #fff; border: 1px solid #e2e2e2; border-radius: 8px; padding: 1rem 1.25rem; }
+  section.assumptions h2 { font-size: 1rem; margin: 0 0 .5rem; }
+  section.assumptions li { margin: .2rem 0; color: #444; }
+  footer { margin-top: 1rem; color: #999; font-size: .8rem; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #131313; color: #e8e8e8; }
+    .table-wrap, section.assumptions { background: #1c1c1c; border-color: #333; }
+    th { background: #222; color: #aaa; }
+    th, td { border-color: #2c2c2c; }
+    .banner { background: #3a3110; border-color: #6b5c1e; color: #f0dc8c; }
+    .why { color: #999; }
+    section.assumptions li { color: #bbb; }
+    tr.rec-buy_now td.rec { color: #57c46a; }
+    tr.rec-watch td.rec { color: #d9b23a; }
+    a { color: #7ab8f5; }
+  }
+</style>
+<main>
+<h1>Top Buys — DEMO (placeholder data)</h1>
+<p class="sub">Project Atlas — Opportunity Engine output, generated 2026-07-07 05:57 UTC</p>
+<div class="banner">DEMO — PLACEHOLDER DATA. Every listing on this page is fictional sample data. Nothing here is a real machine or a real recommendation.</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Machine</th><th>Location</th><th>Acq $</th><th>Exit $</th><th>ROI</th><th>Days</th><th>Conf</th><th>Buy Score</th><th>Rec</th><th></th></tr></thead>
+<tbody>
+<tr class="rec-buy_now">
+  <td>1</td>
+  <td>Kubota SVL75<div class="why">Dealer aging inventory, 200+ days on lot</div></td>
+  <td>Dallas, TX</td>
+  <td class="num">$34,500</td>
+  <td class="num">$52,690</td>
+  <td class="num">38.4%</td>
+  <td class="num">20</td>
+  <td class="num">0.94</td>
+  <td class="num score">100.0</td>
+  <td class="rec">BUY NOW</td>
+  <td></td>
+</tr><tr class="rec-buy_now">
+  <td>2</td>
+  <td>Bobcat S650<div class="why">Manufacturer rebate pushed trade-ins to market</div></td>
+  <td>Kansas City, MO</td>
+  <td class="num">$33,000</td>
+  <td class="num">$49,406</td>
+  <td class="num">42.6%</td>
+  <td class="num">18</td>
+  <td class="num">0.93</td>
+  <td class="num score">100.0</td>
+  <td class="rec">BUY NOW</td>
+  <td></td>
+</tr><tr class="rec-buy_now">
+  <td>3</td>
+  <td>Bobcat T76<div class="why">Rental fleet refresh, off-lease unit</div></td>
+  <td>Phoenix, AZ</td>
+  <td class="num">$39,000</td>
+  <td class="num">$52,536</td>
+  <td class="num">26.9%</td>
+  <td class="num">25</td>
+  <td class="num">0.90</td>
+  <td class="num score">98.7</td>
+  <td class="rec">BUY NOW</td>
+  <td></td>
+</tr><tr class="rec-buy_now">
+  <td>4</td>
+  <td>Takeuchi TL10<div class="why">Insurance write-off, cosmetic only per inspection</div></td>
+  <td>Nashville, TN</td>
+  <td class="num">$37,500</td>
+  <td class="num">$46,058</td>
+  <td class="num">19.8%</td>
+  <td class="num">22</td>
+  <td class="num">0.91</td>
+  <td class="num score">97.3</td>
+  <td class="rec">BUY NOW</td>
+  <td></td>
+</tr><tr class="rec-watch">
+  <td>5</td>
+  <td>CAT 259D3<div class="why">Retail-priced, minimal spread</div></td>
+  <td>Chicago, IL</td>
+  <td class="num">$52,000</td>
+  <td class="num">$62,888</td>
+  <td class="num">16.1%</td>
+  <td class="num">40</td>
+  <td class="num">0.70</td>
+  <td class="num score">67.3</td>
+  <td class="rec">WATCH</td>
+  <td></td>
+</tr><tr class="rec-watch">
+  <td>6</td>
+  <td>Deere 317G<div class="why">Municipal surplus</div></td>
+  <td>Denver, CO</td>
+  <td class="num">$44,500</td>
+  <td class="num">$49,968</td>
+  <td class="num">8.5%</td>
+  <td class="num">28</td>
+  <td class="num">0.88</td>
+  <td class="num score">65.5</td>
+  <td class="rec">WATCH</td>
+  <td></td>
+</tr><tr class="rec-pass">
+  <td>7</td>
+  <td>CAT 259D3<div class="why">Bankruptcy auction, unreserved</div></td>
+  <td>Orlando, FL</td>
+  <td class="num">$41,000</td>
+  <td class="num">$44,710</td>
+  <td class="num">3.7%</td>
+  <td class="num">30</td>
+  <td class="num">0.85</td>
+  <td class="num score">44.6</td>
+  <td class="rec">PASS</td>
+  <td></td>
+</tr><tr class="rec-pass">
+  <td>8</td>
+  <td>Deere 325G<div class="why">Construction slowdown regional oversupply</div></td>
+  <td>Atlanta, GA</td>
+  <td class="num">$52,000</td>
+  <td class="num">$49,987</td>
+  <td class="num">-5.8%</td>
+  <td class="num">32</td>
+  <td class="num">0.82</td>
+  <td class="num score">17.3</td>
+  <td class="rec">PASS</td>
+  <td></td>
+</tr><tr class="rec-pass">
+  <td>9</td>
+  <td>Bobcat S76<div class="why">Government liquidation, high hours</div></td>
+  <td>Sacramento, CA</td>
+  <td class="num">$41,000</td>
+  <td class="num">$34,703</td>
+  <td class="num">-22.1%</td>
+  <td class="num">55</td>
+  <td class="num">0.60</td>
+  <td class="num score">11.4</td>
+  <td class="rec">PASS</td>
+  <td></td>
+</tr><tr class="rec-pass">
+  <td>10</td>
+  <td>Takeuchi TL12<div class="why">Estate sale</div></td>
+  <td>Charlotte, NC</td>
+  <td class="num">$40,000</td>
+  <td class="num">$36,474</td>
+  <td class="num">-11.8%</td>
+  <td class="num">35</td>
+  <td class="num">0.80</td>
+  <td class="num score">9.9</td>
+  <td class="rec">PASS</td>
+  <td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section class="assumptions">
+<h2>Assumptions &amp; data caveats</h2>
+<ul>
+<li>All listings are hand-written illustrative samples; no live data source is connected.</li>
+</ul>
+</section>
+<footer>Generated by tools/daily_report.py. Buy Score constants are calibrated against a worked example, not live outcomes — see schemas/buy_score_model.md.</footer>
+</main>
