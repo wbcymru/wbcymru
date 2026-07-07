@@ -1,3 +1,9 @@
+# Only needed for models/exit_price_model.py, models/days_to_sell_model.py,
+# and models/condition_cnn.py (framework-dependent specs, not executed in
+# this environment). Everything else in ml/ -- buy_score.py,
+# pin_iso10261.py, transport_cost.py, residual_value_curve.py,
+# point_in_time.py, opportunity_engine.py -- is stdlib-only and needs
+# nothing installed.
 xgboost>=2.0
 scikit-survival>=0.22
 torch>=2.2

@@ -11,6 +11,8 @@ Raw data schema first, ML model downstream. Bad schema = bad model. Build/review
 7. `training_labels.schema.json` — frozen (prediction, outcome) pairs for the Buy Score model. See `buy_score_model.md` for how these get consumed, and `../ml/` for the concrete model implementations (XGBoost exit-price regressor, Random Survival Forest days-to-sell model, ResNet-50 reconditioning CNN, and the Buy Score combiner).
 8. `market_event.schema.json` — detected disposition events (bankruptcy auctions, rental fleet refreshes, natural disasters, etc.) that explain *why* an asset is mispriced, not just what it is. `listing.source.market_event_ref` links a listing to the event driving its price.
 
+`DATA_DICTIONARY.md` is auto-generated from all eight schemas above by `generate_data_dictionary.py` — re-run that script after any schema change; never hand-edit the dictionary itself, or it will drift out of sync with the schemas it's supposed to describe.
+
 `listing.schema.json` also carries the vendor-enrichment extension points added for multi-source API ingestion (EquipmentWatch, Sandhills VIP+/FleetEvaluator, Rouse Services, USDA/EPA compliance): `verification.sources` (generic third-party verification, not one field per vendor), `asset.spec_attributes` (free-form category-specific specs — hydraulics flow, track width, undercarriage wear — that don't generalize across verticals), `location.compliance` (liens, title status, and an open `regulatory_flags` array for jurisdiction-specific requirements), and `comparables.provider_valuations` (raw third-party valuations kept distinct from Atlas's own blended regional_fmv/olv/flv). See `../ml/compliance_checklist.md` for the pre-acquisition legal gate these compliance fields back.
 
 ## How the records join
