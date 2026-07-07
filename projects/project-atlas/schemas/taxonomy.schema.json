@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atlas.internal/schemas/taxonomy.schema.json",
+  "title": "Asset Category",
+  "description": "One entry in the controlled vocabulary that every `category` field across the other schemas must be drawn from. Kept as its own small table (see categories.seed.json) rather than an inline enum on each schema, because the category list grows every time Atlas expands into a new vertical (construction today, aircraft/marine/medical tomorrow) and an inline enum would mean editing every schema file per launch.",
+  "type": "object",
+  "required": ["category_id", "vertical", "label"],
+  "additionalProperties": false,
+  "properties": {
+    "category_id": { "type": "string", "description": "Stable slug used as the `category` value everywhere else, e.g. compact_tractor." },
+    "vertical": { "type": "string", "description": "Top-level grouping, e.g. construction, agriculture, medical, aviation, marine, food_service, manufacturing, military_surplus." },
+    "label": { "type": "string", "description": "Human-readable display name." },
+    "parent_category_id": { "type": ["string", "null"], "description": "For sub-categories, e.g. mini_excavator under excavator." },
+    "identity_input_type": {
+      "type": ["string", "null"],
+      "enum": ["vin", "serial_number", "udi", "tail_number", "hin", null],
+      "description": "Default decode_input.input_type for asset_identity records in this category."
+    },
+    "synonyms": { "type": "array", "items": { "type": "string" }, "description": "Alternate terms seen in raw listings, used by the normalization pipeline to map free text to category_id." }
+  }
+}

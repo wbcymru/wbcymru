@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atlas.internal/schemas/training_labels.schema.json",
+  "title": "Buy Score Training Label",
+  "description": "One supervised-learning example for the Opportunity Engine's Buy Score model: a frozen snapshot of what was known/predicted at scoring time, paired with the eventual real-world outcome. The frozen feature/prediction snapshot is mandatory and separate from the live listing record specifically to prevent label leakage — by the time a sale resolves, the listing's own fields (price, status, comparables) have moved on, so training must never join back to the live listing for its X values.",
+  "type": "object",
+  "required": ["label_id", "listing_record_id", "prediction_snapshot", "label_status"],
+  "additionalProperties": false,
+  "properties": {
+    "label_id": { "type": "string", "format": "uuid" },
+    "listing_record_id": { "type": "string", "format": "uuid" },
+    "opportunity_id": { "type": ["string", "null"], "format": "uuid", "description": "Set when this scoring event produced a surfaced recommendation (buy_now/watch), not just a background score." },
+    "prediction_snapshot": {
+      "type": "object",
+      "required": ["model_version", "predicted_at", "buy_score"],
+      "additionalProperties": false,
+      "description": "Exact copy of listing.scoring at the moment of prediction. Immutable once written.",
+      "properties": {
+        "model_version": { "type": "string" },
+        "predicted_at": { "type": "string", "format": "date-time" },
+        "buy_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "recommendation": { "type": ["string", "null"], "enum": ["buy_now", "watch", "pass", null] },
+        "predicted_expected_resale_value": { "type": ["number", "null"] },
+        "predicted_days_to_sell": { "type": ["number", "null"], "minimum": 0 },
+        "predicted_net_profit": { "type": ["number", "null"] },
+        "predicted_roi_pct": { "type": ["number", "null"] },
+        "confidence_score": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "feature_snapshot_ref": { "type": ["string", "null"], "description": "Pointer (e.g. object storage key or feature-store version) to the full feature vector used, for debugging/re-training beyond the summary fields captured here." }
+      }
+    },
+    "label_status": {
+      "type": "string",
+      "enum": ["pending", "resolved_sold", "resolved_unsold", "expired_unscored"],
+      "description": "pending until an outcome is known; resolved_unsold covers listings that expired/were withdrawn with no sale, which is itself a meaningful label (predicted buy_now that never sold)."
+    },
+    "outcome_source": {
+      "type": "object",
+      "description": "Present once label_status is resolved_sold.",
+      "additionalProperties": false,
+      "properties": {
+        "sold_transaction_id": { "type": "string", "format": "uuid" },
+        "origin": { "type": "string", "enum": ["auction_result", "dealer_reported", "public_record", "atlas_facilitated"] }
+      }
+    },
+    "ground_truth": {
+      "type": "object",
+      "description": "Present once label_status is resolved_sold.",
+      "additionalProperties": false,
+      "properties": {
+        "actual_sold_price": { "type": ["number", "null"], "minimum": 0 },
+        "actual_days_to_sell": { "type": ["integer", "null"], "minimum": 0 },
+        "actual_net_profit": { "type": ["number", "null"], "description": "Only meaningful for atlas_facilitated outcomes where Atlas held the asset; null for third-party sold comps used purely to validate valuation, not profit prediction." },
+        "actual_roi_pct": { "type": ["number", "null"] },
+        "outcome_class": { "type": ["string", "null"], "enum": ["profitable", "breakeven", "loss", "unsold", null] }
+      }
+    },
+    "error_metrics": {
+      "type": "object",
+      "description": "Computed downstream during model evaluation; not populated at label-write time.",
+      "additionalProperties": false,
+      "properties": {
+        "resale_value_error_pct": { "type": ["number", "null"] },
+        "days_to_sell_error": { "type": ["number", "null"] },
+        "roi_error_pct": { "type": ["number", "null"] },
+        "buy_score_calibration_bucket": { "type": ["string", "null"], "description": "Which predicted-score decile this example fell into, for calibration curve tracking." }
+      }
+    }
+  }
+}

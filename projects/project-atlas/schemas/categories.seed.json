@@ -1,0 +1,18 @@
+[
+  { "category_id": "compact_tractor", "vertical": "agriculture", "label": "Compact Tractor", "parent_category_id": null, "identity_input_type": "serial_number", "synonyms": ["sub-compact tractor", "utility tractor"] },
+  { "category_id": "skid_steer", "vertical": "construction", "label": "Skid Steer Loader", "parent_category_id": null, "identity_input_type": "serial_number", "synonyms": ["skid steer loader", "compact track loader"] },
+  { "category_id": "excavator", "vertical": "construction", "label": "Excavator", "parent_category_id": null, "identity_input_type": "serial_number", "synonyms": [] },
+  { "category_id": "mini_excavator", "vertical": "construction", "label": "Mini Excavator", "parent_category_id": "excavator", "identity_input_type": "serial_number", "synonyms": ["compact excavator"] },
+  { "category_id": "crane", "vertical": "construction", "label": "Crane", "parent_category_id": null, "identity_input_type": "serial_number", "synonyms": ["mobile crane", "crawler crane"] },
+  { "category_id": "combine_harvester", "vertical": "agriculture", "label": "Combine Harvester", "parent_category_id": null, "identity_input_type": "serial_number", "synonyms": ["combine"] },
+  { "category_id": "mri_machine", "vertical": "medical", "label": "MRI Machine", "parent_category_id": null, "identity_input_type": "udi", "synonyms": ["magnetic resonance imaging system"] },
+  { "category_id": "ct_scanner", "vertical": "medical", "label": "CT Scanner", "parent_category_id": null, "identity_input_type": "udi", "synonyms": ["computed tomography scanner"] },
+  { "category_id": "fixed_wing_aircraft", "vertical": "aviation", "label": "Fixed-Wing Aircraft", "parent_category_id": null, "identity_input_type": "tail_number", "synonyms": ["airplane"] },
+  { "category_id": "helicopter", "vertical": "aviation", "label": "Helicopter", "parent_category_id": null, "identity_input_type": "tail_number", "synonyms": ["rotorcraft"] },
+  { "category_id": "recreational_boat", "vertical": "marine", "label": "Recreational Boat", "parent_category_id": null, "identity_input_type": "hin", "synonyms": [] },
+  { "category_id": "commercial_kitchen_equipment", "vertical": "food_service", "label": "Commercial Kitchen Equipment", "parent_category_id": null, "identity_input_type": "serial_number", "synonyms": ["restaurant equipment"] },
+  { "category_id": "cnc_machine", "vertical": "manufacturing", "label": "CNC Machine", "parent_category_id": null, "identity_input_type": "serial_number", "synonyms": ["cnc mill", "cnc lathe"] },
+  { "category_id": "gpu_server", "vertical": "manufacturing", "label": "GPU Server / Data Center Compute", "parent_category_id": null, "identity_input_type": "serial_number", "synonyms": ["ai server", "gpu node"] },
+  { "category_id": "on_road_truck", "vertical": "vehicles", "label": "On-Road Truck", "parent_category_id": null, "identity_input_type": "vin", "synonyms": ["semi truck", "commercial truck"] },
+  { "category_id": "military_surplus_vehicle", "vertical": "military_surplus", "label": "Military Surplus Vehicle", "parent_category_id": null, "identity_input_type": "serial_number", "synonyms": ["humvee", "mrap"] }
+]
