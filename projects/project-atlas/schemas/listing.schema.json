@@ -28,7 +28,8 @@
         "first_seen_at": { "type": "string", "format": "date-time", "description": "First time this listing was observed, across all re-crawls." },
         "listing_type": { "type": "string", "enum": ["auction", "fixed_price", "make_offer", "classified", "liquidation", "government_surplus"] },
         "status": { "type": "string", "enum": ["active", "sold", "expired", "withdrawn", "relisted"] },
-        "language": { "type": "string", "description": "Original listing language (ISO 639-1), before translation." }
+        "language": { "type": "string", "description": "Original listing language (ISO 639-1), before translation." },
+        "market_event_ref": { "type": ["string", "null"], "format": "uuid", "description": "FK to a market_event record explaining why this listing exists at this price (e.g. bankruptcy_auction, rental_fleet_refresh) — see market_event.schema.json. Null when no detected event applies." }
       }
     },
     "raw": {
@@ -77,7 +78,21 @@
         "spec_attributes": {
           "type": "object",
           "additionalProperties": true,
-          "description": "Category-specific technical specs that don't generalize across verticals — e.g. auxiliary_hydraulics_flow_gpm, track_width_inches, undercarriage_wear_pct, has_enclosed_cab for construction equipment; airframe_hours for aircraft; software_version for medical devices. Free-form by design: a new vertical is a data change here, not a schema migration."
+          "description": "Category-specific technical specs that don't generalize across verticals — e.g. auxiliary_hydraulics_flow_gpm, track_width_inches, undercarriage_wear_pct, has_enclosed_cab for construction equipment; airframe_hours for aircraft; software_version for medical devices; ISO 15143-3 machineConfiguration fields (boom length, operating weight, hydraulic line count) also land here since they're static per-unit spec, not time-varying telemetry. Free-form by design: a new vertical is a data change here, not a schema migration."
+        },
+        "telematics": {
+          "type": "object",
+          "description": "Point-in-time telematics snapshot per ISO 15143-3 (AEMP 2.0), the OEM-agnostic mixed-fleet telemetry standard. Universal across powered equipment (unlike spec_attributes, which is category-idiosyncratic) since any powered asset has hours/idle time/fuel level, so these are named fields rather than free-form. This is a snapshot, not a history — see reported_at, which is the AS-OF key for point-in-time joins (schemas/README.md).",
+          "additionalProperties": false,
+          "properties": {
+            "hours_source": { "type": ["string", "null"], "enum": ["seller_declared", "oem_telematics_api", "estimated", null], "description": "Provenance of the sibling asset.hours field, not a duplicate hours value." },
+            "hours_as_of": { "type": ["string", "null"], "format": "date-time" },
+            "fuel_level_pct": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+            "cumulative_idle_hours": { "type": ["number", "null"], "minimum": 0 },
+            "cumulative_payload_tonnes": { "type": ["number", "null"], "minimum": 0 },
+            "telematics_provider": { "type": ["string", "null"], "description": "e.g. John Deere Operations Center, Bobcat Machine IQ — OEM-agnostic field, any ISO 15143-3 publisher." },
+            "reported_at": { "type": ["string", "null"], "format": "date-time", "description": "When this telematics snapshot was captured. The AS-OF key for point-in-time-correct joins against this listing's telemetry state." }
+          }
         }
       }
     },
@@ -99,7 +114,8 @@
       "additionalProperties": false,
       "properties": {
         "city": { "type": ["string", "null"] },
-        "state": { "type": ["string", "null"] },
+        "state": { "type": ["string", "null"], "description": "Free-text state/province as scraped." },
+        "state_iso_3166_2": { "type": ["string", "null"], "description": "Normalized ISO 3166-2 subdivision code (e.g. US-TX), aligned with regional_demand.region.code so the two can be joined directly." },
         "country": { "type": "string", "description": "ISO 3166-1 alpha-2." },
         "postal_code": { "type": ["string", "null"] },
         "lat": { "type": ["number", "null"], "minimum": -90, "maximum": 90 },
@@ -164,6 +180,8 @@
         "regional_fmv": { "type": ["number", "null"], "description": "Fair market value." },
         "regional_olv": { "type": ["number", "null"], "description": "Orderly liquidation value." },
         "regional_flv": { "type": ["number", "null"], "description": "Forced liquidation value." },
+        "regional_nflv": { "type": ["number", "null"], "description": "Net forced liquidation value — typical basis for reserved-auction sales, see sold_transaction.sale.valuation_basis." },
+        "regional_nolv": { "type": ["number", "null"], "description": "Net orderly liquidation value — typical basis for wholesale/private sales, see sold_transaction.sale.valuation_basis." },
         "sold_comp_count_60d": { "type": ["integer", "null"], "minimum": 0 },
         "price_variance": { "type": ["number", "null"] },
         "provider_valuations": {
@@ -175,7 +193,7 @@
             "additionalProperties": false,
             "properties": {
               "provider": { "type": "string" },
-              "valuation_type": { "type": "string", "enum": ["fmv", "flv", "olv", "retail", "auction", "asking", "wholesale"] },
+              "valuation_type": { "type": "string", "enum": ["fmv", "flv", "nflv", "olv", "nolv", "retail", "auction", "asking", "wholesale"] },
               "value": { "type": "number", "minimum": 0 },
               "currency": { "type": "string" },
               "retrieved_at": { "type": ["string", "null"], "format": "date-time" }

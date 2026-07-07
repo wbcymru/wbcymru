@@ -17,7 +17,12 @@
         "raw_value": { "type": "string", "description": "The VIN/serial/UDI/tail number exactly as captured, before any normalization (case, dashes, whitespace)." },
         "normalized_value": { "type": "string", "description": "Uppercased, whitespace/punctuation-stripped form used as the actual lookup key." },
         "input_type": { "type": "string", "enum": ["vin", "serial_number", "udi", "tail_number", "hin"], "description": "hin = hull identification number, for marine assets." },
-        "manufacturer_hint": { "type": ["string", "null"], "description": "Manufacturer as stated by the source listing, used to disambiguate serial-number ranges that collide across brands." }
+        "manufacturer_hint": { "type": ["string", "null"], "description": "Manufacturer as stated by the source listing, used to disambiguate serial-number ranges that collide across brands." },
+        "parsed_segments": {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "description": "Generic positional breakdown of raw_value for standards with a fixed structure, e.g. {wmc, mds, check_letter, mis} for ISO 10261 earth-moving machinery PINs. Kept free-form rather than named fields so a future identity standard's segment layout is a data change, not a schema migration."
+        }
       }
     },
     "decode_method": {
@@ -27,8 +32,8 @@
       "properties": {
         "decoder": {
           "type": "string",
-          "enum": ["vin_iso3779", "nhtsa_vpic", "manufacturer_serial_table", "udi_gs1", "faa_registry", "manual_entry"],
-          "description": "vin_iso3779/nhtsa_vpic for on-road vehicles; manufacturer_serial_table for equipment where each OEM publishes its own serial-number-to-model-year ranges (most construction/ag equipment); udi_gs1 for medical devices; faa_registry for aircraft by tail number."
+          "enum": ["vin_iso3779", "nhtsa_vpic", "manufacturer_serial_table", "udi_gs1", "faa_registry", "pin_iso10261", "manual_entry"],
+          "description": "vin_iso3779/nhtsa_vpic for on-road vehicles; manufacturer_serial_table for equipment where each OEM publishes its own serial-number-to-model-year ranges (most construction/ag equipment); udi_gs1 for medical devices; faa_registry for aircraft by tail number; pin_iso10261 for earth-moving machinery Product Identification Numbers (distinct 17-char standard from automotive VIN, see ../ml/pin_iso10261.py)."
         },
         "decoder_version": { "type": ["string", "null"] },
         "decoded_at": { "type": "string", "format": "date-time" },
@@ -54,7 +59,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "checksum_valid": { "type": ["boolean", "null"], "description": "Applies to VIN (ISO 3779 check digit) only; null for serial-table lookups with no checksum." },
+        "checksum_valid": { "type": ["boolean", "null"], "description": "Applies to VIN (ISO 3779 check digit) or PIN (ISO 10261 Modulus-23 check letter) only; null for serial-table lookups with no checksum." },
         "lookup_matched": { "type": "boolean", "default": false },
         "ambiguous_candidates": {
           "type": "array",

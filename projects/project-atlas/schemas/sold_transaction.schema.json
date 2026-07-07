@@ -68,6 +68,12 @@
         "sold_price_usd": { "type": ["number", "null"], "minimum": 0, "description": "Normalized at time of ingestion using that day's FX rate; keep original sold_price/currency alongside it." },
         "sold_at": { "type": "string", "format": "date-time" },
         "sale_type": { "type": "string", "enum": ["auction_hammer", "buy_now", "negotiated", "dealer_retail", "wholesale", "liquidation"] },
+        "auction_type": { "type": ["string", "null"], "enum": ["unreserved", "reserved", null], "description": "Only meaningful when sale_type = auction_hammer. Unreserved auctions clear same-day at forced-liquidation pricing; reserved auctions mitigate downside via a target reserve." },
+        "valuation_basis": {
+          "type": ["string", "null"],
+          "enum": ["fmv", "flv", "nflv", "olv", "nolv", null],
+          "description": "Which liquidation-value basis this sale represents. Typical mapping (see schemas/README.md): unreserved auction -> flv, reserved auction -> nflv, dealer_retail -> olv, wholesale -> nolv. Independently settable per record rather than hard-derived from sale_type/auction_type, since real transactions have edge cases."
+        },
         "buyer_type": { "type": ["string", "null"], "enum": ["dealer", "end_user", "exporter", "rental_company", "unknown", null] },
         "buyer_premium_pct": { "type": ["number", "null"], "minimum": 0 },
         "total_fees": { "type": ["number", "null"], "minimum": 0 },

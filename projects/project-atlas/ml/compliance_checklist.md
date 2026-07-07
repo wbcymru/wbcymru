@@ -11,6 +11,6 @@ Gate before transport is booked on any cross-border acquisition. Backed by `list
 Category-specific flags (not universal, hence modeled as the open `regulatory_flags` array rather than named schema fields):
 
 - `usda_cleanliness_inspection` — biological/soil cleaning required for agricultural equipment crossing certain borders
-- `escort_vehicle_required` — oversize-load requirement for cranes/large construction equipment
+- `escort_vehicle_required` — oversize-load requirement for cranes/large construction equipment. This flag is the legal gate; the actual dollar cost of satisfying it lives on `logistics_friction.transport.escort_vehicle_count`/`escort_vehicle_cost` (see `logistics_friction.schema.json`) — gate vs. cost, not duplicated.
 
 All flags in `regulatory_flags` must have `satisfied: true` before `logistics_friction` transport booking proceeds — an unresolved `required: true` flag should block the Opportunity Engine from surfacing a `buy_now` recommendation regardless of Buy Score.

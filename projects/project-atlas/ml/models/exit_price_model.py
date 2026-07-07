@@ -5,6 +5,17 @@ asset will fetch in a target zip code. Trained exclusively on
 sold_transaction records (see ../../schemas/sold_transaction.schema.json)
 labeled per ../../schemas/training_labels.schema.json — active listings
 are signals, sold transactions are the label.
+
+Training feature joins (regional_demand signals, telematics history) must
+go through ../point_in_time.py's AS-OF join utilities, not a live/current
+join to those tables -- otherwise a sale from date T can see regional
+demand data from after T, leaking future information into training.
+
+../residual_value_curve.py implements an independent, interpretable
+hours-driven depreciation prior for the same "expected exit value"
+question -- a fallback for sparse training slices and a sanity check on
+this model's predictions, not a competing production model. If the two
+diverge materially for a category, investigate before trusting either.
 """
 
 import xgboost as xgb

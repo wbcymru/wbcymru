@@ -35,6 +35,14 @@
         },
         "distance_miles": { "type": ["number", "null"], "minimum": 0 },
         "mode": { "type": ["string", "null"], "enum": ["ltl", "ftl", "hotshot", "rail", "ocean_freight", "air_freight", "driveaway", null] },
+        "equipment_type": { "type": ["string", "null"], "enum": ["flatbed", "step_deck", "rgn", "lowboy", "conestoga", "hotshot_trailer", "other", null], "description": "Heavy-haul trailer configuration; rgn/lowboy for oversize construction equipment." },
+        "rate_per_mile": { "type": ["number", "null"], "minimum": 0, "description": "Flatbed rate per mile, e.g. from the DAT Freight Rate index." },
+        "rate_type": { "type": ["string", "null"], "enum": ["spot", "contract", "historical", null], "description": "DAT and similar indexes publish distinct spot/contract/historical rate series; record which one rate_per_mile came from." },
+        "fuel_surcharge_pct": { "type": ["number", "null"], "minimum": 0, "description": "Typically sourced from regional_demand.macro_signals.national_diesel_reference at quote time; frozen here once quoted, same as other snapshot fields on this record." },
+        "permit_cost": { "type": ["number", "null"], "minimum": 0, "description": "Oversize/overweight load permitting." },
+        "escort_vehicle_count": { "type": ["integer", "null"], "minimum": 0 },
+        "escort_vehicle_cost": { "type": ["number", "null"], "minimum": 0, "description": "Cost line item for pilot/escort vehicles. The legal requirement this satisfies is tracked separately as listing.location.compliance.regulatory_flags[flag=escort_vehicle_required] — that's the gate, this is the cost." },
+        "assembly_disassembly_cost": { "type": ["number", "null"], "minimum": 0, "description": "Field assembly/disassembly for oversize equipment (e.g. cranes) that can't move intact." },
         "carrier_quotes": {
           "type": "array",
           "items": {
