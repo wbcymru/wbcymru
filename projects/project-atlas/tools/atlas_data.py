@@ -97,6 +97,12 @@ def make_template(kind: str) -> dict:
                 "buyer_premium_pct": None,
                 "estimated_fees": None,
             },
+            "auction": {
+                "start_at": None,
+                "end_at": None,
+                "bid_count": None,
+                "watchers": None,
+            },
             "friction": {
                 "estimated_transport_cost": None,
                 "estimated_repair_cost": None,
