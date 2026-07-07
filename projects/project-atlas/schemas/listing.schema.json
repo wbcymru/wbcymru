@@ -36,6 +36,28 @@
       "description": "Untouched, platform-specific payload as scraped. Schema intentionally unconstrained — shape varies per source.",
       "additionalProperties": true
     },
+    "verification": {
+      "type": "object",
+      "description": "Third-party data verification/enrichment applied on top of the seller-declared asset.* fields (e.g. EquipmentWatch resolving make/model/year from a decoded serial number, or Sandhills/Rouse confirming spec data). Modeled as a list of providers rather than one hardcoded field per vendor, so adding a new verification API is a data change, not a schema migration.",
+      "additionalProperties": false,
+      "properties": {
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["provider", "verified_at"],
+            "additionalProperties": false,
+            "properties": {
+              "provider": { "type": "string", "description": "e.g. EquipmentWatch, Sandhills VIP+, Rouse Services." },
+              "verified_at": { "type": "string", "format": "date-time" },
+              "fields_verified": { "type": "array", "items": { "type": "string" }, "description": "Which asset.* fields this source confirmed or corrected, e.g. [\"manufacturer\", \"model\", \"year\"]." },
+              "match_confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+            }
+          }
+        },
+        "discrepancy_flagged": { "type": "boolean", "default": false, "description": "True if any verification source's decoded make/model/year disagreed with the seller-declared asset.* values." }
+      }
+    },
     "asset": {
       "type": "object",
       "required": ["category", "manufacturer"],
@@ -51,7 +73,12 @@
         "hours": { "type": ["number", "null"], "minimum": 0 },
         "miles": { "type": ["number", "null"], "minimum": 0 },
         "attachments": { "type": "array", "items": { "type": "string" } },
-        "fuel_type": { "type": ["string", "null"], "enum": ["diesel", "gasoline", "electric", "hybrid", "propane", "natural_gas", null] }
+        "fuel_type": { "type": ["string", "null"], "enum": ["diesel", "gasoline", "electric", "hybrid", "propane", "natural_gas", null] },
+        "spec_attributes": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Category-specific technical specs that don't generalize across verticals — e.g. auxiliary_hydraulics_flow_gpm, track_width_inches, undercarriage_wear_pct, has_enclosed_cab for construction equipment; airframe_hours for aircraft; software_version for medical devices. Free-form by design: a new vertical is a data change here, not a schema migration."
+        }
       }
     },
     "condition": {
@@ -76,7 +103,32 @@
         "country": { "type": "string", "description": "ISO 3166-1 alpha-2." },
         "postal_code": { "type": ["string", "null"] },
         "lat": { "type": ["number", "null"], "minimum": -90, "maximum": 90 },
-        "lon": { "type": ["number", "null"], "minimum": -180, "maximum": 180 }
+        "lon": { "type": ["number", "null"], "minimum": -180, "maximum": 180 },
+        "compliance": {
+          "type": "object",
+          "description": "Pre-acquisition legal/regulatory gates, checked before transport is booked. See compliance_checklist.md.",
+          "additionalProperties": false,
+          "properties": {
+            "has_active_liens": { "type": ["boolean", "null"], "description": "Must be resolved false before cross-border transport — a flagged security interest gets the asset seized at the border." },
+            "title_in_hand": { "type": ["boolean", "null"] },
+            "regulatory_flags": {
+              "type": "array",
+              "description": "Category/jurisdiction-specific pre-transport requirements, e.g. usda_cleanliness_inspection for ag equipment, escort_vehicle_required for oversize loads, epa_tier4_compliance for cross-border diesel engines.",
+              "items": {
+                "type": "object",
+                "required": ["flag", "required"],
+                "additionalProperties": false,
+                "properties": {
+                  "flag": { "type": "string" },
+                  "required": { "type": "boolean" },
+                  "satisfied": { "type": ["boolean", "null"] },
+                  "jurisdiction": { "type": ["string", "null"] },
+                  "notes": { "type": ["string", "null"] }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "pricing": {
@@ -113,7 +165,23 @@
         "regional_olv": { "type": ["number", "null"], "description": "Orderly liquidation value." },
         "regional_flv": { "type": ["number", "null"], "description": "Forced liquidation value." },
         "sold_comp_count_60d": { "type": ["integer", "null"], "minimum": 0 },
-        "price_variance": { "type": ["number", "null"] }
+        "price_variance": { "type": ["number", "null"] },
+        "provider_valuations": {
+          "type": "array",
+          "description": "Raw valuations pulled from third-party pricing services (e.g. Rouse Services, EquipmentWatch, Sandhills VIP+/FleetEvaluator), kept distinct from Atlas's own blended regional_fmv/olv/flv above so the blend inputs stay auditable.",
+          "items": {
+            "type": "object",
+            "required": ["provider", "valuation_type", "value", "currency"],
+            "additionalProperties": false,
+            "properties": {
+              "provider": { "type": "string" },
+              "valuation_type": { "type": "string", "enum": ["fmv", "flv", "olv", "retail", "auction", "asking", "wholesale"] },
+              "value": { "type": "number", "minimum": 0 },
+              "currency": { "type": "string" },
+              "retrieved_at": { "type": ["string", "null"], "format": "date-time" }
+            }
+          }
+        }
       }
     },
     "friction": {

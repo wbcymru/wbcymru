@@ -1,0 +1,6 @@
+xgboost>=2.0
+scikit-survival>=0.22
+torch>=2.2
+torchvision>=0.17
+numpy>=1.26
+pandas>=2.2

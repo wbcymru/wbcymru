@@ -8,7 +8,9 @@ Raw data schema first, ML model downstream. Bad schema = bad model. Build/review
 4. `asset_identity.schema.json` — VIN/serial/UDI/tail-number decode, so the same physical unit can be tracked across multiple listings and resales over its lifetime.
 5. `logistics_friction.schema.json` — transport, repair, cleaning, tax, fees. Source of truth for the `friction` block that `listing` denormalizes a snapshot of.
 6. `regional_demand.schema.json` — (region, category, period) supply/demand/macro feature table for the Market Intelligence Engine.
-7. `training_labels.schema.json` — frozen (prediction, outcome) pairs for the Buy Score model. See `buy_score_model.md` for how these get consumed.
+7. `training_labels.schema.json` — frozen (prediction, outcome) pairs for the Buy Score model. See `buy_score_model.md` for how these get consumed, and `../ml/` for the concrete model implementations (XGBoost exit-price regressor, Random Survival Forest days-to-sell model, ResNet-50 reconditioning CNN, and the Buy Score combiner).
+
+`listing.schema.json` also carries the vendor-enrichment extension points added for multi-source API ingestion (EquipmentWatch, Sandhills VIP+/FleetEvaluator, Rouse Services, USDA/EPA compliance): `verification.sources` (generic third-party verification, not one field per vendor), `asset.spec_attributes` (free-form category-specific specs — hydraulics flow, track width, undercarriage wear — that don't generalize across verticals), `location.compliance` (liens, title status, and an open `regulatory_flags` array for jurisdiction-specific requirements), and `comparables.provider_valuations` (raw third-party valuations kept distinct from Atlas's own blended regional_fmv/olv/flv). See `../ml/compliance_checklist.md` for the pre-acquisition legal gate these compliance fields back.
 
 ## How the records join
 
