@@ -51,6 +51,8 @@ def parse_pin(pin: str) -> dict:
         raise InvalidPIN(f"PIN must be exactly 17 characters, got {len(pin)}")
     for c in pin:
         _char_value(c)  # raises on invalid character
+    if pin[8] not in LETTERS23:
+        raise InvalidPIN(f"check letter (position 9) must be a letter, not {pin[8]!r} (digits are not valid check letters)")
     return {
         "wmc": pin[0:3],
         "mds": pin[3:8],
@@ -91,4 +93,15 @@ if __name__ == "__main__":
     tampered = full_pin[:-1] + ("1" if full_pin[-1] != "1" else "2")
     print("tampered PIN validates:", validate_check_letter(tampered), "(expected False)")
     assert not validate_check_letter(tampered), "self-test failed: tampering was not detected"
+
+    # A digit at position 9 (check letter) must be rejected explicitly,
+    # not silently pass character validation and only fail later as a
+    # generic check-letter mismatch.
+    digit_check_letter_pin = sample_payload_wmc_mds + "1" + sample_mis
+    try:
+        parse_pin(digit_check_letter_pin)
+        raise AssertionError("expected InvalidPIN for a digit at the check-letter position")
+    except InvalidPIN as e:
+        print("digit at check-letter position correctly rejected:", e)
+
     print("All self-tests passed.")

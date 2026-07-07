@@ -74,6 +74,11 @@ def score_sample_listing(listing: SampleListing) -> dict:
     curve_params = DepreciationCurveParams(v0=listing.replacement_value_usd, **CURVE_SHAPE)
     target_exit_value = residual_value(listing.hours, curve_params)
 
+    # TODO: fuel_surcharge_pct is hardcoded here because SAMPLE_LISTINGS is
+    # placeholder data. Once wired to real listings, this should come from
+    # regional_demand.macro_signals.national_diesel_reference for the
+    # listing's region/date, not a constant -- see transport_cost.py's
+    # own docstring on this field.
     freight = total_transport_cost(TransportCostInputs(
         distance_miles=listing.distance_to_resale_hub_miles,
         rate_per_mile=listing.freight_rate_per_mile,

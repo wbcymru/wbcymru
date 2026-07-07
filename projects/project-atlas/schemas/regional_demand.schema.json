@@ -59,6 +59,7 @@
       "properties": {
         "interest_rate_pct": { "type": ["number", "null"] },
         "construction_starts_index": { "type": ["number", "null"] },
+        "housing_permits_index": { "type": ["number", "null"], "description": "Rolling housing-permit issuance index for the region, correlated with construction/compact-equipment demand alongside construction_starts_index. Referenced by ml/models/exit_price_model.py's FEATURE_COLUMNS and PRD.md's Market Intelligence Engine inputs." },
         "crop_price_index": { "type": ["number", "null"] },
         "fuel_price_usd_per_gallon": { "type": ["number", "null"], "minimum": 0, "description": "Regional retail diesel/fuel price. Distinct from macro_signals.national_diesel_reference below, which is a national freight-industry benchmark, not a regional retail price." },
         "weather_events": { "type": "array", "items": { "type": "string" }, "description": "e.g. hurricane, drought, flood — drives demand spikes for generators, pumps, etc." },

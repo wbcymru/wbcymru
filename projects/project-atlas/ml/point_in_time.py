@@ -55,16 +55,31 @@ class PointInTimeIndex:
 
 
 def sort_merge_as_of_join(left_rows, index: PointInTimeIndex):
-    """left_rows: iterable of (entity_key, cutoff), ideally grouped/sorted by
-    entity_key then cutoff ascending, matching how the index is sorted.
+    """left_rows: iterable of (entity_key, cutoff), REQUIRED to be grouped/
+    sorted by entity_key then cutoff ascending, matching how the index is
+    sorted.
 
     Yields (entity_key, cutoff, value_or_None). Advances a per-entity
     pointer forward only -- never re-scans earlier timestamps -- giving
     O(n+m) total work across a full left table instead of repeated
     per-row bisects.
+
+    Raises ValueError if a cutoff arrives out of order for an entity_key
+    already seen. The forward-only pointer cannot correct for that (it
+    would silently return a later, leaked value instead of the correct
+    earlier one) -- same "never fall back to a wrong-but-plausible answer"
+    rule as as_of(), enforced here instead of assumed of the caller.
     """
     pointers = defaultdict(int)
+    last_cutoff = {}
     for entity_key, cutoff in left_rows:
+        if entity_key in last_cutoff and cutoff < last_cutoff[entity_key]:
+            raise ValueError(
+                f"sort_merge_as_of_join requires cutoffs sorted ascending per entity_key; "
+                f"got {cutoff!r} after {last_cutoff[entity_key]!r} for {entity_key!r}"
+            )
+        last_cutoff[entity_key] = cutoff
+
         timestamps = index._timestamps.get(entity_key, [])
         values = index._values.get(entity_key, [])
         p = pointers[entity_key]
@@ -112,5 +127,22 @@ if __name__ == "__main__":
         ("skid_steer|US-TX", "2024-08-15", 40200),
         ("skid_steer|US-TX", "2024-12-01", 41000),
     ], "sort_merge_as_of_join produced an unexpected (possibly leaked) result"
+
+    # Regression test: sort_merge_as_of_join must reject out-of-order
+    # cutoffs for the same entity rather than silently leaking a later
+    # value (this used to return 200 for 2024-06-15 -- the Sept 1 value --
+    # because the pointer had already advanced past it for the 2024-08-01
+    # lookup that came first in the input).
+    leak_index = PointInTimeIndex([
+        ("A", "2024-06-01", 100),
+        ("A", "2024-07-01", 200),
+        ("A", "2024-09-01", 400),
+    ])
+    out_of_order_left = [("A", "2024-08-01"), ("A", "2024-06-15"), ("A", "2024-12-01")]
+    try:
+        list(sort_merge_as_of_join(out_of_order_left, leak_index))
+        raise AssertionError("expected ValueError for out-of-order cutoffs, got none")
+    except ValueError as e:
+        print("out-of-order cutoffs correctly rejected:", e)
 
     print("All self-tests passed: no future snapshot was ever selected.")

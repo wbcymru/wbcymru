@@ -23,6 +23,18 @@ class TransportCostInputs:
     escort_vehicle_cost: float = 0.0
     assembly_disassembly_cost: float = 0.0
 
+    def __post_init__(self):
+        if self.distance_miles < 0:
+            raise ValueError(f"distance_miles must be non-negative, got {self.distance_miles}")
+        if self.rate_per_mile < 0:
+            raise ValueError(f"rate_per_mile must be non-negative, got {self.rate_per_mile}")
+        if self.fuel_surcharge_pct < 0:
+            raise ValueError(f"fuel_surcharge_pct must be non-negative, got {self.fuel_surcharge_pct}")
+        for name in ("permit_cost", "escort_vehicle_cost", "assembly_disassembly_cost"):
+            value = getattr(self, name)
+            if value < 0:
+                raise ValueError(f"{name} must be non-negative, got {value}")
+
 
 def linehaul_cost(i: TransportCostInputs) -> float:
     return i.distance_miles * i.rate_per_mile * (1 + i.fuel_surcharge_pct / 100.0)
@@ -57,3 +69,15 @@ if __name__ == "__main__":
         assembly_disassembly_cost=3000,
     )
     print("Crane RGN move:", round(total_transport_cost(crane_move), 2))
+
+    # Negative inputs must be rejected, not silently produce a negative cost.
+    for bad_kwargs in [
+        {"distance_miles": -100, "rate_per_mile": 2.0},
+        {"distance_miles": 100, "rate_per_mile": -2.0},
+        {"distance_miles": 100, "rate_per_mile": 2.0, "fuel_surcharge_pct": -50.0},
+    ]:
+        try:
+            TransportCostInputs(**bad_kwargs)
+            raise AssertionError(f"expected ValueError for {bad_kwargs}")
+        except ValueError as e:
+            print("negative input correctly rejected:", bad_kwargs, "->", e)

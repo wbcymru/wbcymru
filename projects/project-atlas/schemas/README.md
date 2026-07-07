@@ -19,8 +19,10 @@ Raw data schema first, ML model downstream. Bad schema = bad model. Build/review
 
 ```
 listing.asset.identity_ref ───────► asset_identity.identity_id
+sold_transaction.asset.identity_ref ► asset_identity.identity_id
 listing.record_id ◄──────────────── sold_transaction.listing_record_id
 listing.source.market_event_ref ──► market_event.event_id
+sold_transaction.source.market_event_ref ► market_event.event_id
 logistics_friction.listing_record_id ──► listing.record_id
 training_labels.listing_record_id ──────► listing.record_id
 training_labels.outcome_source.sold_transaction_id ──► sold_transaction.transaction_id
@@ -77,3 +79,4 @@ Every time-varying schema exposes an AS-OF timestamp field — the value that wa
 - `listing.asset.telematics` is a point-in-time snapshot only. A full telematics *history* table (needed for real point-in-time joins against telemetry trends, not just latest-known-value) doesn't exist yet — deferred, not built.
 - The full Tier 1–3 twenty-category taxonomy some strategy discussions raised (RVs, forklifts, mining/oil & gas equipment, etc.) is intentionally not built out — `priority_models.seed.json`'s narrow SKU list is the deliberate substitute while the platform focuses on one vertical.
 - A dedicated Global Physical Asset Index schema doesn't exist — see PRD.md's Long-Term Vision section for why that's deferred.
+- `opportunity_id` (referenced on both `sold_transaction.atlas_outcome` and `training_labels`) has no owning schema — it's currently an opaque pointer into a future Opportunity Engine record store that doesn't exist yet. Not building a full `opportunity.schema.json` now, consistent with keeping scope narrow.

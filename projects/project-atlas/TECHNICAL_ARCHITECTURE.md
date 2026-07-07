@@ -65,6 +65,7 @@ Per an explicit strategy decision to narrow scope before broadening it, `schemas
 - **Portfolio Intelligence, Autonomous Agent, Marketplace** (escrow/insurance/financing): not schematized at all yet.
 - **Global Physical Asset Index**: documented as a future direction in `PRD.md`, no schema.
 - **Business financials** (TAM/SAM/SOM, capital requirements, unit economics): intentionally not fabricated without real market data.
+- **Compliance gate enforcement**: `ml/compliance_checklist.md` states that an unresolved required `regulatory_flags` entry should block the Opportunity Engine from surfacing a `buy_now` recommendation — that invariant is documented but not wired into any code yet; `opportunity_engine.py`/`buy_score.py` don't reference `regulatory_flags` or compliance state at all.
 
 ## Verification
 

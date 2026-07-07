@@ -32,6 +32,10 @@ class OpportunityInputs:
     estimated_recon_cost: float        # sum of Model III line_items
     confidence_score: float            # 0-1, blended from model uncertainty
 
+    def __post_init__(self):
+        if not 0.0 <= self.confidence_score <= 1.0:
+            raise ValueError(f"confidence_score must be in [0, 1], got {self.confidence_score}")
+
 
 def net_expected_profit(i: OpportunityInputs) -> float:
     return i.target_exit_value - i.acquisition_cost - i.estimated_freight_cost - i.estimated_recon_cost
@@ -43,7 +47,7 @@ def cost_basis(i: OpportunityInputs) -> float:
 
 def roi_pct(i: OpportunityInputs) -> float:
     basis = cost_basis(i)
-    return net_expected_profit(i) / basis if basis else 0.0
+    return net_expected_profit(i) / basis if basis > 0 else 0.0
 
 
 def annualized_roi(i: OpportunityInputs) -> float:
@@ -57,6 +61,12 @@ def buy_score(i: OpportunityInputs) -> float:
     """0-100. Logistic squash of confidence-weighted annualized ROI, so
     score saturates instead of blowing up on very fast/high-margin flips
     and stays sensitive in the mid-range where buy/pass calls are close."""
+    if cost_basis(i) <= 0:
+        # Free or better-than-free acquisition (a rebate, or getting paid
+        # to haul the asset away) is unambiguously a max-confidence buy --
+        # not a ratio to compute against a non-positive denominator, which
+        # would otherwise invert the sign and score a great deal as a pass.
+        return 100.0
     x = i.confidence_score * annualized_roi(i)
     return 100.0 / (1.0 + math.exp(-STEEPNESS * (x - MIDPOINT)))
 
@@ -89,3 +99,23 @@ if __name__ == "__main__":
     cat = OpportunityInputs(34000, 44200, 41, 2800, 2200, 0.74)
     for name, opp in [("Kubota BX23S", kubota), ("Cat 259D3", cat)]:
         print(name, score_listing(opp))
+
+    # cost_basis <= 0 (e.g. a rebate, or getting paid to haul it away) must
+    # score as a max-confidence buy, not invert the ROI sign into a pass.
+    free_haul_away = OpportunityInputs(
+        acquisition_cost=-500, target_exit_value=8000,
+        estimated_days_to_sell=15, estimated_freight_cost=300,
+        estimated_recon_cost=200, confidence_score=0.9,
+    )
+    result = score_listing(free_haul_away)
+    print("Paid-to-remove edge case:", result)
+    assert result["buy_score"] == 100.0
+    assert result["recommendation"] == "buy_now"
+
+    # confidence_score outside [0, 1] must be rejected.
+    for bad_confidence in (1.5, -0.2):
+        try:
+            OpportunityInputs(14700, 19400, 22, 900, 600, bad_confidence)
+            raise AssertionError(f"expected ValueError for confidence_score={bad_confidence}")
+        except ValueError as e:
+            print("out-of-range confidence_score correctly rejected:", bad_confidence, "->", e)

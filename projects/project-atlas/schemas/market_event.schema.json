@@ -31,6 +31,7 @@
       "type": ["object", "null"],
       "description": "Same shape as regional_demand.region — reused rather than redefined so the two can be joined directly.",
       "additionalProperties": false,
+      "required": ["level", "code"],
       "properties": {
         "level": { "type": "string", "enum": ["metro", "state", "country", "global"] },
         "code": { "type": "string" },
@@ -41,6 +42,6 @@
     "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1, "description": "Confidence the detected event is real and correctly typed, not a confidence in its price impact." },
     "source_signal": { "type": ["string", "null"], "description": "Free-text description of what triggered detection, e.g. 'court filing docket match', 'dealer inventory age spike + surplus listing spike in region'." },
     "linked_listing_ids": { "type": "array", "items": { "type": "string", "format": "uuid" }, "description": "Listings attributed to this event. See also listing.source.market_event_ref for the inverse FK." },
-    "linked_transaction_ids": { "type": "array", "items": { "type": "string", "format": "uuid" }, "description": "sold_transaction records attributed to this event." }
+    "linked_transaction_ids": { "type": "array", "items": { "type": "string", "format": "uuid" }, "description": "sold_transaction records attributed to this event. See also sold_transaction.source.market_event_ref for the inverse FK." }
   }
 }

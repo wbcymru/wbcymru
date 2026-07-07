@@ -26,7 +26,8 @@
           "enum": ["auction_result", "dealer_reported", "public_record", "atlas_facilitated"],
           "description": "atlas_facilitated means Atlas itself brokered the purchase and/or resale; these are the highest-trust labels and also feed training_labels for the Buy Score model."
         },
-        "raw": { "type": "object", "additionalProperties": true, "description": "Untouched source payload." }
+        "raw": { "type": "object", "additionalProperties": true, "description": "Untouched source payload." },
+        "market_event_ref": { "type": ["string", "null"], "format": "uuid", "description": "FK to a market_event record explaining why this sale happened at this price (e.g. bankruptcy_auction, government_liquidation) — see market_event.schema.json. Mirrors listing.source.market_event_ref; null when no detected event applies." }
       }
     },
     "asset": {
@@ -40,7 +41,7 @@
         "year": { "type": ["integer", "null"], "minimum": 1900 },
         "serial_number": { "type": ["string", "null"] },
         "vin": { "type": ["string", "null"] },
-        "identity_ref": { "type": ["string", "null"], "format": "uuid" },
+        "identity_ref": { "type": ["string", "null"], "format": "uuid", "description": "FK to asset_identity.identity_id once VIN/PIN/serial decoding has run — mirrors listing.asset.identity_ref, letting the same physical unit's identity resolve across both its listing and sale records." },
         "hours": { "type": ["number", "null"], "minimum": 0 },
         "miles": { "type": ["number", "null"], "minimum": 0 },
         "condition_at_sale": { "type": ["string", "null"], "enum": ["new", "excellent", "good", "fair", "poor", "salvage", null] },
