@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atlas.internal/schemas/regional_demand.schema.json",
+  "title": "Regional Demand Snapshot",
+  "description": "Aggregated supply/demand/macro signals for one (region, category, period) cell. This is the Market Intelligence Engine's core feature table — not tied to any single listing — feeding both the AI Valuation Engine (regional_fmv/olv/flv) and the Opportunity Engine (regional arbitrage). Rows accumulate over time; consumers query by region+category+period, not by a stable entity id.",
+  "type": "object",
+  "required": ["snapshot_id", "region", "category", "period", "computed_at"],
+  "additionalProperties": false,
+  "properties": {
+    "snapshot_id": { "type": "string", "format": "uuid" },
+    "computed_at": { "type": "string", "format": "date-time", "description": "When this row was computed/ingested — the AS-OF key for point-in-time joins (see ml/point_in_time.py and schemas/README.md). Distinct from period.end_date, which describes what the row is *about*, not when it was known; a row can be backfilled well after its period ends, and training joins must use computed_at as the cutoff, not period.end_date." },
+    "region": {
+      "type": "object",
+      "required": ["level", "code"],
+      "additionalProperties": false,
+      "properties": {
+        "level": { "type": "string", "enum": ["metro", "state", "country", "global"] },
+        "code": { "type": "string", "description": "CBSA code for metro, ISO 3166-2 for state, ISO 3166-1 alpha-2 for country, 'GLOBAL' for global." },
+        "name": { "type": ["string", "null"] }
+      }
+    },
+    "category": { "type": "string", "description": "Controlled vocabulary term, see taxonomy.schema.json." },
+    "period": {
+      "type": "object",
+      "required": ["start_date", "end_date", "granularity"],
+      "additionalProperties": false,
+      "properties": {
+        "start_date": { "type": "string", "format": "date" },
+        "end_date": { "type": "string", "format": "date" },
+        "granularity": { "type": "string", "enum": ["daily", "weekly", "monthly"] }
+      }
+    },
+    "supply_signals": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "active_listing_count": { "type": ["integer", "null"], "minimum": 0 },
+        "new_listing_count": { "type": ["integer", "null"], "minimum": 0 },
+        "sold_comp_count": { "type": ["integer", "null"], "minimum": 0 },
+        "avg_days_on_market": { "type": ["number", "null"], "minimum": 0 },
+        "dealer_inventory_age_avg_days": { "type": ["number", "null"], "minimum": 0 }
+      }
+    },
+    "demand_signals": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "search_volume_index": { "type": ["number", "null"], "description": "Normalized Google Trends-style index, 0-100." },
+        "watcher_count_avg": { "type": ["number", "null"], "minimum": 0 },
+        "bid_count_avg": { "type": ["number", "null"], "minimum": 0 },
+        "inquiry_count": { "type": ["integer", "null"], "minimum": 0 },
+        "financing_application_count": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "macro_signals": {
+      "type": "object",
+      "description": "External indicators relevant to this category/region. Not every field applies to every category (e.g. crop_price_index for ag equipment, construction_starts_index for construction equipment).",
+      "additionalProperties": false,
+      "properties": {
+        "interest_rate_pct": { "type": ["number", "null"] },
+        "construction_starts_index": { "type": ["number", "null"] },
+        "housing_permits_index": { "type": ["number", "null"], "description": "Rolling housing-permit issuance index for the region, correlated with construction/compact-equipment demand alongside construction_starts_index. Referenced by ml/models/exit_price_model.py's FEATURE_COLUMNS and PRD.md's Market Intelligence Engine inputs." },
+        "crop_price_index": { "type": ["number", "null"] },
+        "fuel_price_usd_per_gallon": { "type": ["number", "null"], "minimum": 0, "description": "Regional retail diesel/fuel price. Distinct from macro_signals.national_diesel_reference below, which is a national freight-industry benchmark, not a regional retail price." },
+        "weather_events": { "type": "array", "items": { "type": "string" }, "description": "e.g. hurricane, drought, flood — drives demand spikes for generators, pumps, etc." },
+        "load_to_truck_ratio": { "type": ["number", "null"], "minimum": 0, "description": "DAT Trendlines-style ratio of active shipping requests to available flatbed trucks. High ratio signals intense regional freight/machinery-movement activity and rising equipment demand; low ratio signals cooling." },
+        "national_diesel_reference": { "type": ["number", "null"], "minimum": 0, "description": "National diesel price benchmark (e.g. DOE/DAT reference), feeding logistics_friction.transport.fuel_surcharge_pct. A national figure, not regional — populate only on rows where region.level = 'global' rather than duplicating it across every metro/state row." },
+        "infrastructure_pipeline_value": { "type": ["number", "null"], "minimum": 0, "description": "$ volume of ongoing public infrastructure works in the region (e.g. Dodge Construction Network), monthly." },
+        "fleet_smr_delta": { "type": ["number", "null"], "description": "Signed trend in aggregated regional fleet operating-hour (SMR) accumulation, e.g. from Rouse Benchmark. Signals local fleet usage intensity and upcoming maintenance-cycle timing." }
+      }
+    },
+    "pricing_signals": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "avg_sold_price": { "type": ["number", "null"], "minimum": 0 },
+        "median_sold_price": { "type": ["number", "null"], "minimum": 0 },
+        "price_trend_pct_30d": { "type": ["number", "null"] },
+        "price_trend_pct_90d": { "type": ["number", "null"] }
+      }
+    },
+    "forecast": {
+      "type": "object",
+      "description": "Model-generated projections, computed from this and prior snapshots. Never hand-entered.",
+      "additionalProperties": false,
+      "properties": {
+        "demand_forecast_30d": { "type": ["number", "null"] },
+        "supply_forecast_30d": { "type": ["number", "null"] },
+        "seasonality_index": { "type": ["number", "null"] },
+        "model_version": { "type": ["string", "null"] },
+        "forecasted_at": { "type": ["string", "null"], "format": "date-time" }
+      }
+    }
+  }
+}

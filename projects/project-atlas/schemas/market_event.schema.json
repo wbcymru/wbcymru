@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atlas.internal/schemas/market_event.schema.json",
+  "title": "Market/Disposition Event",
+  "description": "A detected real-world event that explains why a batch of assets is coming to market at a given price, e.g. a rental fleet refresh, a bankruptcy auction, or a natural disaster driving generator demand. The thesis this schema encodes: the event that created a sale is often a bigger driver of pricing dislocation than the specific brand/model — this is the structured 'why is it mispriced' record nothing else in the schema set captures.",
+  "type": "object",
+  "required": ["event_id", "event_type", "detected_at"],
+  "additionalProperties": false,
+  "properties": {
+    "event_id": { "type": "string", "format": "uuid" },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "rental_fleet_refresh",
+        "bankruptcy_auction",
+        "dealer_aging_inventory",
+        "municipal_surplus",
+        "insurance_writeoff",
+        "government_liquidation",
+        "estate_sale",
+        "farm_retirement",
+        "construction_slowdown",
+        "manufacturer_rebate",
+        "natural_disaster",
+        "interest_rate_shock",
+        "other"
+      ]
+    },
+    "detected_at": { "type": "string", "format": "date-time" },
+    "region": {
+      "type": ["object", "null"],
+      "description": "Same shape as regional_demand.region — reused rather than redefined so the two can be joined directly.",
+      "additionalProperties": false,
+      "required": ["level", "code"],
+      "properties": {
+        "level": { "type": "string", "enum": ["metro", "state", "country", "global"] },
+        "code": { "type": "string" },
+        "name": { "type": ["string", "null"] }
+      }
+    },
+    "category": { "type": ["string", "null"], "description": "Controlled vocabulary term, see taxonomy.schema.json. Null if the event isn't category-specific (e.g. an interest_rate_shock)." },
+    "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1, "description": "Confidence the detected event is real and correctly typed, not a confidence in its price impact." },
+    "source_signal": { "type": ["string", "null"], "description": "Free-text description of what triggered detection, e.g. 'court filing docket match', 'dealer inventory age spike + surplus listing spike in region'." },
+    "linked_listing_ids": { "type": "array", "items": { "type": "string", "format": "uuid" }, "description": "Listings attributed to this event. See also listing.source.market_event_ref for the inverse FK." },
+    "linked_transaction_ids": { "type": "array", "items": { "type": "string", "format": "uuid" }, "description": "sold_transaction records attributed to this event. See also sold_transaction.source.market_event_ref for the inverse FK." }
+  }
+}

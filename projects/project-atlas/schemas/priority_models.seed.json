@@ -1,0 +1,13 @@
+[
+  { "manufacturer": "Bobcat", "model": "S650", "category": "skid_steer", "typical_price_range_usd": [28000, 45000] },
+  { "manufacturer": "Bobcat", "model": "S76", "category": "skid_steer", "typical_price_range_usd": [30000, 48000] },
+  { "manufacturer": "Bobcat", "model": "T76", "category": "skid_steer", "typical_price_range_usd": [35000, 55000] },
+  { "manufacturer": "CAT", "model": "259D3", "category": "skid_steer", "typical_price_range_usd": [34000, 52000] },
+  { "manufacturer": "CAT", "model": "289D3", "category": "skid_steer", "typical_price_range_usd": [40000, 62000] },
+  { "manufacturer": "Deere", "model": "317G", "category": "skid_steer", "typical_price_range_usd": [33000, 50000] },
+  { "manufacturer": "Deere", "model": "325G", "category": "skid_steer", "typical_price_range_usd": [38000, 58000] },
+  { "manufacturer": "Kubota", "model": "SVL75", "category": "skid_steer", "typical_price_range_usd": [32000, 50000] },
+  { "manufacturer": "Kubota", "model": "SVL97", "category": "skid_steer", "typical_price_range_usd": [42000, 65000] },
+  { "manufacturer": "Takeuchi", "model": "TL10", "category": "skid_steer", "typical_price_range_usd": [30000, 47000] },
+  { "manufacturer": "Takeuchi", "model": "TL12", "category": "skid_steer", "typical_price_range_usd": [36000, 56000] }
+]
